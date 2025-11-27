@@ -111,7 +111,7 @@ function SubscriptionGuard({ userId, children }) {
 
     script.onload = () => {
       const options = {
-        key: 'YOUR_RAZORPAY_KEY_ID', // Replace with your Razorpay Key ID
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
         amount: 1000, // Amount in paise (10 Rs = 1000 paise)
         currency: 'INR',
         name: 'Habbit+ Task Tracker',
