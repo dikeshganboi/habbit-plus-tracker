@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { useState, useEffect } from 'react';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult } from 'firebase/auth';
 import { auth } from '../firebase';
 
 function AuthForm({ onAuth }) {
@@ -64,11 +64,50 @@ function AuthForm({ onAuth }) {
       const result = await signInWithPopup(auth, provider);
       onAuth?.(result.user);
     } catch (err) {
-      setError(err.message || 'Google sign-in failed');
+      // Fallback to redirect in environments where popup is blocked/not supported
+      const fallbackCodes = [
+        'auth/popup-blocked',
+        'auth/popup-closed-by-user',
+        'auth/operation-not-supported-in-this-environment',
+        'auth/auth-domain-config-required'
+      ];
+      if (err?.code && fallbackCodes.includes(err.code)) {
+        try {
+          const provider = new GoogleAuthProvider();
+          await signInWithRedirect(auth, provider);
+          return; // Redirect will navigate away
+        } catch (redirectErr) {
+          setError(redirectErr.message || 'Google sign-in failed');
+        }
+      } else {
+        setError(err.message || 'Google sign-in failed');
+      }
     } finally {
       setLoading(false);
     }
   };
+
+  // Handle sign-in redirect result when returning to the app
+  useEffect(() => {
+    let mounted = true;
+    getRedirectResult(auth)
+      .then((result) => {
+        if (!mounted) return;
+        if (result?.user) {
+          onAuth?.(result.user);
+        }
+      })
+      .catch((err) => {
+        if (!mounted) return;
+        // Avoid noisy errors; show concise message
+        if (err?.code && err.code !== 'auth/no-auth-event') {
+          setError(err.message || 'Google sign-in failed');
+        }
+      });
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-black flex items-center justify-center px-3 sm:px-4 py-6">
