@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { auth } from '../firebase';
 
 function AuthForm({ onAuth }) {
@@ -52,6 +52,21 @@ function AuthForm({ onAuth }) {
       setInfo('Password reset email sent. Check your inbox.');
     } catch (err) {
       setError(err.message || 'Failed to send reset email');
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setError('');
+    setInfo('');
+    setLoading(true);
+    try {
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      onAuth?.(result.user);
+    } catch (err) {
+      setError(err.message || 'Google sign-in failed');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -108,6 +123,18 @@ function AuthForm({ onAuth }) {
             <span>{loading ? (mode === 'login' ? 'Signing In...' : 'Creating...') : (mode === 'login' ? 'Sign In' : 'Sign Up')}</span>
           </button>
         </form>
+        {/* Social Sign-in */}
+        <div className="mt-4">
+          <button
+            type="button"
+            onClick={handleGoogleSignIn}
+            disabled={loading}
+            className="w-full flex items-center justify-center gap-2 bg-white dark:bg-zinc-800 border-2 border-gray-400 dark:border-zinc-600 rounded-md px-4 py-3 sm:py-2.5 text-sm sm:text-base font-semibold text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-zinc-700 transition-colors"
+            aria-label="Sign in with Google"
+          >
+            <span>Continue with Google</span>
+          </button>
+        </div>
         <div className="mt-6 text-center">
           <button
             onClick={toggleMode}
