@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { collection, query, getDocs } from 'firebase/firestore';
 import { db } from '../firebase';
-import { TrendingUp, CheckCircle2, Quote, Flame, Award, Target, Calendar, TrendingDown, CheckSquare } from 'lucide-react';
+import { TrendingUp, CheckCircle2, Quote, Flame, Award, Target, Calendar, CheckSquare, ArrowRight } from 'lucide-react';
 
 const motivationalQuotes = [
   "The secret of getting ahead is getting started.",
@@ -16,9 +16,42 @@ const motivationalQuotes = [
   "Success doesn't just find you. You have to go out and get it."
 ];
 
+const formatDate = (date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+const calculateBestStreak = (habits) => {
+  const dates = habits.flatMap((habit) => habit.completedDates || []).sort();
+  if (dates.length === 0) return 0;
+
+  const firstDate = new Date(`${dates[0]}T00:00:00`);
+  const lastDate = new Date(`${dates[dates.length - 1]}T00:00:00`);
+  let bestStreak = 0;
+  let currentStreak = 0;
+
+  for (const date = new Date(firstDate); date <= lastDate; date.setDate(date.getDate() + 1)) {
+    const dateStr = formatDate(date);
+    const completedHabits = habits.filter((habit) => habit.completedDates?.includes(dateStr)).length;
+    const dayIsComplete = habits.length > 0 && (completedHabits / habits.length) >= 0.5;
+
+    if (dayIsComplete) {
+      currentStreak++;
+      bestStreak = Math.max(bestStreak, currentStreak);
+    } else {
+      currentStreak = 0;
+    }
+  }
+
+  return bestStreak;
+};
+
 function Dashboard({ userId }) {
   const [habitsData, setHabitsData] = useState({ total: 0, completed: 0 });
   const [tasksData, setTasksData] = useState({ total: 0, completed: 0 });
+  const [allTasks, setAllTasks] = useState([]);
   const [allHabits, setAllHabits] = useState([]);
   const [quote, setQuote] = useState('');
   const [loading, setLoading] = useState(true);
@@ -59,13 +92,16 @@ function Dashboard({ userId }) {
         const tasksSnapshot = await getDocs(query(tasksRef));
         
         let completedTasks = 0;
+        const tasks = [];
         tasksSnapshot.forEach((doc) => {
           const task = doc.data();
+          tasks.push({ id: doc.id, ...task });
           if (task.completed) {
             completedTasks++;
           }
         });
 
+        setAllTasks(tasks);
         setTasksData({
           total: tasksSnapshot.size,
           completed: completedTasks
@@ -134,8 +170,7 @@ function Dashboard({ userId }) {
       }
     }
 
-    // Calculate best streak (simplified - would need full history for accurate calculation)
-    const bestStreak = Math.max(currentStreak, currentStreak + Math.floor(Math.random() * 3)); // Mock best streak
+    const bestStreak = calculateBestStreak(allHabits);
 
     return { currentStreak, bestStreak, weeklyProgress };
   }, [allHabits]);
@@ -165,270 +200,56 @@ function Dashboard({ userId }) {
 
   if (loading) {
     return (
-      <div className="text-center py-12">
-        <p className="text-gray-600 dark:text-zinc-400 font-semibold">Loading dashboard...</p>
+      <div className="space-y-4 animate-pulse" aria-label="Loading dashboard">
+        <div className="h-32 rounded-2xl bg-gray-200 dark:bg-zinc-800" />
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3"><div className="h-24 rounded-2xl bg-gray-200 dark:bg-zinc-800" /><div className="h-24 rounded-2xl bg-gray-200 dark:bg-zinc-800" /><div className="h-24 rounded-2xl bg-gray-200 dark:bg-zinc-800" /><div className="h-24 rounded-2xl bg-gray-200 dark:bg-zinc-800" /></div>
+        <div className="h-64 rounded-2xl bg-gray-200 dark:bg-zinc-800" />
       </div>
     );
   }
 
   return (
-    <div className="space-y-4 sm:space-y-6">
-      {/* Motivational Quote */}
-      <div className="bg-gradient-to-b from-white to-gray-50 dark:from-zinc-900 dark:to-zinc-900/80 backdrop-blur-xl border-2 border-gray-300 dark:border-zinc-700 rounded-xl sm:rounded-2xl p-5 sm:p-8 hover:border-indigo-400 dark:hover:border-indigo-600 transition-all shadow-[0_4px_16px_rgba(0,0,0,0.1)] dark:shadow-[0_4px_20px_rgba(0,0,0,0.4)]">
-        <div className="flex items-start space-x-3 sm:space-x-4">
-          <Quote size={24} className="sm:w-8 sm:h-8 text-indigo-500 dark:text-indigo-400 flex-shrink-0 mt-1 drop-shadow-md" />
-          <div>
-            <p className="text-base sm:text-xl text-gray-900 dark:text-white font-bold italic mb-2 leading-relaxed tracking-wide">"{quote}"</p>
-            <p className="text-xs sm:text-sm text-gray-600 dark:text-zinc-400 font-semibold">Daily Motivation</p>
-          </div>
+    <div className="space-y-5 sm:space-y-7">
+      <section className="flex flex-col gap-5 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 sm:p-7 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+          <p className="mb-2 text-xs font-bold uppercase tracking-[0.16em] text-indigo-600 dark:text-indigo-300">Today</p>
+          <h2 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-3xl">Make today count.</h2>
+          <p className="mt-2 max-w-xl text-sm leading-6 text-gray-600 dark:text-zinc-400">You have {habitsData.total} habits and {allTasks.filter(task => !task.completed).length} tasks to focus on today.</p>
+          <div className="mt-5 flex items-center gap-3 text-sm text-gray-500 dark:text-zinc-400"><Quote size={16} className="text-indigo-500" /><span className="italic">{quote}</span></div>
         </div>
-      </div>
+        <div className="flex items-center gap-4 rounded-xl bg-gray-50 px-4 py-3 dark:bg-zinc-800/70 sm:min-w-[230px]">
+          <div className="relative flex h-14 w-14 items-center justify-center rounded-full border-4 border-indigo-100 dark:border-indigo-950">
+            <div className="absolute inset-[-4px] rounded-full border-4 border-indigo-500 border-l-transparent" style={{ transform: `rotate(${habitsPercentage * 3.6 - 45}deg)` }} />
+            <span className="text-sm font-bold text-gray-900 dark:text-white">{habitsPercentage}%</span>
+          </div>
+          <div><p className="text-sm font-semibold text-gray-900 dark:text-white">Today's progress</p><p className="mt-1 text-xs text-gray-500 dark:text-zinc-400">{habitsData.completed} of {habitsData.total} habits</p></div>
+        </div>
+      </section>
 
-      {/* Welcome Section */}
-      <div className="bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-900 dark:to-purple-900 rounded-xl sm:rounded-2xl p-6 sm:p-8 text-white shadow-[0_4px_20px_rgba(0,0,0,0.15)] dark:shadow-[0_4px_24px_rgba(0,0,0,0.4)] border-2 border-indigo-500 dark:border-indigo-700">
-        <h2 className="text-2xl sm:text-3xl font-black mb-2 tracking-wide">Welcome Back! 👋</h2>
-        <p className="text-indigo-100 dark:text-indigo-200 text-sm sm:text-base font-semibold">Track your progress and build lasting habits</p>
-      </div>
+      <section className="grid grid-cols-2 divide-x divide-gray-200 rounded-xl border border-gray-200 bg-white dark:divide-zinc-800 dark:border-zinc-800 dark:bg-zinc-900 sm:grid-cols-4">
+        {[
+          { label: 'Current streak', value: `${streakData.currentStreak} days`, icon: Flame, tone: 'text-amber-500' },
+          { label: 'Best streak', value: `${streakData.bestStreak} days`, icon: Award, tone: 'text-indigo-500' },
+          { label: 'Habits today', value: `${habitsData.completed}/${habitsData.total}`, icon: Target, tone: 'text-indigo-500' },
+          { label: 'Tasks done', value: `${tasksData.completed}/${tasksData.total}`, icon: CheckSquare, tone: 'text-green-600' }
+        ].map(({ label, value, icon: Icon, tone }) => <div key={label} className="flex items-center gap-3 p-4"><Icon size={17} className={tone} /><div><p className="text-sm font-semibold text-gray-900 dark:text-white">{value}</p><p className="mt-0.5 text-[11px] text-gray-500 dark:text-zinc-500">{label}</p></div></div>)}
+      </section>
 
-      {/* Streak Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5">
-        {/* Current Streak */}
-        <div className="bg-gradient-to-b from-white to-orange-50 dark:from-zinc-900 dark:to-orange-900/10 backdrop-blur-xl border-2 border-orange-300 dark:border-orange-700 rounded-xl sm:rounded-2xl p-5 sm:p-6 hover:border-orange-400 dark:hover:border-orange-600 transition-all shadow-[0_4px_16px_rgba(249,115,22,0.2)] dark:shadow-[0_4px_20px_rgba(249,115,22,0.3)]">
-          <div className="flex items-center justify-between mb-3">
-            <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-orange-500 to-red-500 rounded-xl flex items-center justify-center shadow-[0_4px_12px_rgba(249,115,22,0.4)] border-2 border-orange-600">
-              <Flame size={24} className="sm:w-7 sm:h-7 text-white drop-shadow-md" />
-            </div>
-          </div>
-          <div className="text-4xl sm:text-5xl font-black text-gray-900 dark:text-white mb-1">{streakData.currentStreak}</div>
-          <p className="text-sm sm:text-base text-gray-600 dark:text-zinc-400 font-bold">Day Streak 🔥</p>
+      <section className="grid gap-5 lg:grid-cols-[1.1fr_0.9fr]">
+        <div className="design-card p-5 sm:p-6">
+          <div className="mb-4 flex items-center justify-between"><div><p className="text-xs font-bold uppercase tracking-[0.16em] text-gray-500 dark:text-zinc-500">Your focus</p><h3 className="mt-1 text-lg font-bold text-gray-900 dark:text-white">Today's habits</h3></div><TrendingUp size={19} className="text-indigo-500" /></div>
+          <div className="space-y-2">{allHabits.slice(0, 5).map(habit => { const done = habit.completedDates?.includes(new Date().toISOString().split('T')[0]); return <div key={habit.id} className="flex items-center justify-between rounded-lg px-2 py-3 hover:bg-gray-50 dark:hover:bg-zinc-800"><div className="flex items-center gap-3"><CheckCircle2 size={18} className={done ? 'text-green-600' : 'text-gray-300 dark:text-zinc-600'} /><span className={`text-sm ${done ? 'text-gray-400 line-through dark:text-zinc-500' : 'font-medium text-gray-900 dark:text-white'}`}>{habit.title}</span></div><span className="text-xs text-gray-500 dark:text-zinc-500">{done ? 'Done' : 'Open'}</span></div> })}{allHabits.length === 0 && <p className="py-5 text-sm text-gray-500 dark:text-zinc-500">Your first habit will appear here.</p>}</div>
         </div>
+        <div className="design-card p-5 sm:p-6">
+          <div className="mb-4 flex items-center justify-between"><div><p className="text-xs font-bold uppercase tracking-[0.16em] text-gray-500 dark:text-zinc-500">Next up</p><h3 className="mt-1 text-lg font-bold text-gray-900 dark:text-white">Today's tasks</h3></div><ArrowRight size={19} className="text-gray-400" /></div>
+          <div className="space-y-2">{allTasks.filter(task => !task.completed).slice(0, 5).map(task => <div key={task.id} className="flex items-center justify-between gap-3 rounded-lg px-2 py-3 hover:bg-gray-50 dark:hover:bg-zinc-800"><div className="flex min-w-0 items-center gap-3"><span className={`h-2 w-2 shrink-0 rounded-full ${task.priority === 'High' ? 'bg-red-500' : task.priority === 'Low' ? 'bg-green-500' : 'bg-amber-500'}`} /><span className="truncate text-sm font-medium text-gray-900 dark:text-white">{task.text}</span></div><span className="shrink-0 text-xs text-gray-500 dark:text-zinc-500">{task.category || 'Personal'}</span></div>)}{allTasks.filter(task => !task.completed).length === 0 && <p className="py-5 text-sm text-gray-500 dark:text-zinc-500">Nothing urgent. Enjoy the clear space.</p>}</div>
+        </div>
+      </section>
 
-        {/* Best Streak */}
-        <div className="bg-gradient-to-b from-white to-purple-50 dark:from-zinc-900 dark:to-purple-900/10 backdrop-blur-xl border-2 border-purple-300 dark:border-purple-700 rounded-xl sm:rounded-2xl p-5 sm:p-6 hover:border-purple-400 dark:hover:border-purple-600 transition-all shadow-[0_4px_16px_rgba(168,85,247,0.2)] dark:shadow-[0_4px_20px_rgba(168,85,247,0.3)]">
-          <div className="flex items-center justify-between mb-3">
-            <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-purple-500 to-indigo-500 rounded-xl flex items-center justify-center shadow-[0_4px_12px_rgba(168,85,247,0.4)] border-2 border-purple-600">
-              <Award size={24} className="sm:w-7 sm:h-7 text-white drop-shadow-md" />
-            </div>
-          </div>
-          <div className="text-4xl sm:text-5xl font-black text-gray-900 dark:text-white mb-1">{streakData.bestStreak}</div>
-          <p className="text-sm sm:text-base text-gray-600 dark:text-zinc-400 font-bold">Best Streak 🏆</p>
-        </div>
-
-        {/* Overall Progress */}
-        <div className="bg-gradient-to-b from-white to-indigo-50 dark:from-zinc-900 dark:to-indigo-900/10 backdrop-blur-xl border-2 border-indigo-300 dark:border-indigo-700 rounded-xl sm:rounded-2xl p-5 sm:p-6 hover:border-indigo-400 dark:hover:border-indigo-600 transition-all shadow-[0_4px_16px_rgba(99,102,241,0.2)] dark:shadow-[0_4px_20px_rgba(99,102,241,0.3)]">
-          <div className="flex items-center justify-between mb-3">
-            <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-indigo-500 to-blue-500 rounded-xl flex items-center justify-center shadow-[0_4px_12px_rgba(99,102,241,0.4)] border-2 border-indigo-600">
-              <Target size={24} className="sm:w-7 sm:h-7 text-white drop-shadow-md" />
-            </div>
-          </div>
-          <div className="text-4xl sm:text-5xl font-black text-gray-900 dark:text-white mb-1">{habitsPercentage}%</div>
-          <p className="text-sm sm:text-base text-gray-600 dark:text-zinc-400 font-bold">Today's Goal 🎯</p>
-        </div>
-      </div>
-
-      {/* Weekly Progress Chart */}
-      <div className="bg-gradient-to-b from-indigo-50 to-purple-50 dark:from-indigo-950/20 dark:to-purple-950/20 backdrop-blur-xl border-2 border-indigo-300 dark:border-indigo-700 rounded-xl sm:rounded-2xl p-5 sm:p-7 shadow-[0_4px_16px_rgba(0,0,0,0.1)] dark:shadow-[0_4px_20px_rgba(0,0,0,0.4)]">
-        <div className="flex items-center space-x-3 mb-5">
-          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-lg flex items-center justify-center shadow-[0_4px_12px_rgba(99,102,241,0.4)] border-2 border-indigo-600">
-            <TrendingUp size={20} className="sm:w-6 sm:h-6 text-white drop-shadow-md" />
-          </div>
-          <h3 className="text-lg sm:text-xl font-black text-gray-900 dark:text-white tracking-wide">Weekly Progress</h3>
-        </div>
-        
-        {/* Line Chart */}
-        <div className="relative h-48 sm:h-56">
-          <svg className="w-full h-full" viewBox="0 0 700 200" preserveAspectRatio="none">
-            <defs>
-              <linearGradient id="chartGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stopColor="#6366f1" stopOpacity="0.4"/>
-                <stop offset="100%" stopColor="#9333ea" stopOpacity="0.1"/>
-              </linearGradient>
-            </defs>
-            
-            {/* Grid lines */}
-            {[0, 25, 50, 75, 100].map((value) => (
-              <line
-                key={value}
-                x1="0"
-                y1={200 - (value * 2)}
-                x2="700"
-                y2={200 - (value * 2)}
-                stroke="currentColor"
-                strokeWidth="1"
-                className="text-gray-300 dark:text-zinc-700"
-                strokeDasharray="5,5"
-              />
-            ))}
-            
-            {/* Area fill */}
-            {streakData.weeklyProgress.length > 0 && (
-              <path
-                d={`M 0 200 ${streakData.weeklyProgress.map((d, i) => 
-                  `L ${(i * 100) + 50} ${200 - (d.percentage * 2)}`
-                ).join(' ')} L ${(streakData.weeklyProgress.length - 1) * 100 + 50} 200 Z`}
-                fill="url(#chartGradient)"
-              />
-            )}
-            
-            {/* Line */}
-            {streakData.weeklyProgress.length > 0 && (
-              <polyline
-                points={streakData.weeklyProgress.map((d, i) => 
-                  `${(i * 100) + 50},${200 - (d.percentage * 2)}`
-                ).join(' ')}
-                fill="none"
-                stroke="#6366f1"
-                strokeWidth="3"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            )}
-            
-            {/* Data points */}
-            {streakData.weeklyProgress.map((d, i) => (
-              <circle
-                key={i}
-                cx={(i * 100) + 50}
-                cy={200 - (d.percentage * 2)}
-                r="5"
-                fill="#6366f1"
-                stroke="#fff"
-                strokeWidth="2"
-              />
-            ))}
-          </svg>
-        </div>
-        
-        {/* Day labels */}
-        <div className="flex justify-between mt-3 px-2">
-          {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day, i) => (
-            <div key={i} className="text-xs sm:text-sm font-bold text-gray-600 dark:text-zinc-400 text-center flex-1">
-              {day}
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Today's Progress */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-        {/* Daily Habits Card */}
-        <div className="bg-gradient-to-b from-white to-gray-50 dark:from-zinc-900 dark:to-zinc-900/80 backdrop-blur-xl border-2 border-gray-300 dark:border-zinc-700 rounded-xl sm:rounded-2xl p-5 sm:p-7 hover:border-orange-400 dark:hover:border-orange-600 transition-all shadow-[0_4px_16px_rgba(0,0,0,0.1)] dark:shadow-[0_4px_20px_rgba(0,0,0,0.4)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.15)] dark:hover:shadow-[0_6px_28px_rgba(0,0,0,0.5)]">
-          <div className="flex items-center justify-between mb-4 sm:mb-5">
-            <div className="flex items-center space-x-2 sm:space-x-3">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-orange-500 to-red-500 rounded-lg sm:rounded-xl flex items-center justify-center shadow-[0_4px_12px_rgba(249,115,22,0.4)] border border-orange-600">
-                <TrendingUp size={20} className="sm:w-[22px] sm:h-[22px] text-white drop-shadow-md" />
-              </div>
-              <div>
-                <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white tracking-wide">Daily Habits</h3>
-                <p className="text-xs sm:text-sm text-gray-600 dark:text-zinc-400 font-medium">Today's Progress</p>
-              </div>
-            </div>
-            <div className="text-right">
-              <div className="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white">{habitsPercentage}%</div>
-              <p className="text-xs sm:text-sm text-gray-600 dark:text-zinc-400 font-semibold">{habitsData.completed}/{habitsData.total} done</p>
-            </div>
-          </div>
-          
-          {/* Progress Bar */}
-          <div className="w-full h-3 bg-gray-300 dark:bg-zinc-800 backdrop-blur rounded-full overflow-hidden border border-gray-400 dark:border-zinc-700 shadow-inner">
-            <div 
-              className="h-full bg-gradient-to-r from-orange-500 to-red-500 rounded-full transition-all duration-500 shadow-[0_0_8px_rgba(249,115,22,0.6)]"
-              style={{ width: `${habitsPercentage}%` }}
-            ></div>
-          </div>
-        </div>
-
-        {/* Tasks Card */}
-        <div className="bg-gradient-to-b from-white to-gray-50 dark:from-zinc-900 dark:to-zinc-900/80 backdrop-blur-xl border-2 border-gray-300 dark:border-zinc-700 rounded-xl sm:rounded-2xl p-5 sm:p-7 hover:border-emerald-400 dark:hover:border-emerald-600 transition-all shadow-[0_4px_16px_rgba(0,0,0,0.1)] dark:shadow-[0_4px_20px_rgba(0,0,0,0.4)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.15)] dark:hover:shadow-[0_6px_28px_rgba(0,0,0,0.5)]">
-          <div className="flex items-center justify-between mb-4 sm:mb-5">
-            <div className="flex items-center space-x-2 sm:space-x-3">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-lg sm:rounded-xl flex items-center justify-center shadow-[0_4px_12px_rgba(16,185,129,0.4)] border border-emerald-600">
-                <CheckCircle2 size={20} className="sm:w-[22px] sm:h-[22px] text-white drop-shadow-md" />
-              </div>
-              <div>
-                <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white tracking-wide">Tasks</h3>
-                <p className="text-xs sm:text-sm text-gray-600 dark:text-zinc-400 font-medium">Overall Progress</p>
-              </div>
-            </div>
-            <div className="text-right">
-              <div className="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white">{tasksPercentage}%</div>
-              <p className="text-xs sm:text-sm text-gray-600 dark:text-zinc-400 font-semibold">{tasksData.completed}/{tasksData.total} done</p>
-            </div>
-          </div>
-          
-          {/* Progress Bar */}
-          <div className="w-full h-3 bg-gray-300 dark:bg-zinc-800 backdrop-blur rounded-full overflow-hidden border border-gray-400 dark:border-zinc-700 shadow-inner">
-            <div 
-              className="h-full bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full transition-all duration-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]"
-              style={{ width: `${tasksPercentage}%` }}
-            ></div>
-          </div>
-        </div>
-      </div>
-
-      {/* Calendar Heatmap */}
-      <div className="bg-gradient-to-b from-white to-gray-50 dark:from-zinc-900 dark:to-zinc-900/80 backdrop-blur-xl border-2 border-gray-300 dark:border-zinc-700 rounded-xl sm:rounded-2xl p-5 sm:p-7 shadow-[0_4px_16px_rgba(0,0,0,0.1)] dark:shadow-[0_4px_20px_rgba(0,0,0,0.4)]">
-        <div className="flex items-center space-x-3 mb-5">
-          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-lg flex items-center justify-center shadow-[0_4px_12px_rgba(99,102,241,0.4)] border-2 border-indigo-600">
-            <Calendar size={20} className="sm:w-6 sm:h-6 text-white drop-shadow-md" />
-          </div>
-          <h3 className="text-lg sm:text-xl font-black text-gray-900 dark:text-white tracking-wide">Monthly Overview</h3>
-        </div>
-        
-        {/* Heatmap Grid */}
-        <div className="grid grid-cols-7 gap-2 sm:gap-3">
-          {calendarData.map((dayData, index) => {
-            let bgColor = 'bg-gray-200 dark:bg-zinc-800';
-            if (dayData.percentage >= 75) bgColor = 'bg-indigo-600';
-            else if (dayData.percentage >= 50) bgColor = 'bg-indigo-400';
-            else if (dayData.percentage >= 25) bgColor = 'bg-indigo-300';
-            else if (dayData.percentage > 0) bgColor = 'bg-indigo-200';
-
-            return (
-              <div
-                key={index}
-                className={`${bgColor} rounded-lg aspect-square flex items-center justify-center border-2 border-gray-300 dark:border-zinc-700 transition-all hover:scale-110`}
-                title={`Day ${dayData.day}: ${dayData.percentage}% complete`}
-              >
-                <span className="text-xs sm:text-sm font-bold text-gray-900 dark:text-white">{dayData.day}</span>
-              </div>
-            );
-          })}
-        </div>
-        
-        {/* Legend */}
-        <div className="flex items-center justify-center space-x-3 mt-5">
-          <span className="text-xs sm:text-sm font-bold text-gray-600 dark:text-zinc-400">Less</span>
-          <div className="flex space-x-2">
-            <div className="w-4 h-4 bg-gray-200 dark:bg-zinc-800 rounded border-2 border-gray-300 dark:border-zinc-700"></div>
-            <div className="w-4 h-4 bg-indigo-200 rounded border-2 border-gray-300 dark:border-zinc-700"></div>
-            <div className="w-4 h-4 bg-indigo-300 rounded border-2 border-gray-300 dark:border-zinc-700"></div>
-            <div className="w-4 h-4 bg-indigo-400 rounded border-2 border-gray-300 dark:border-zinc-700"></div>
-            <div className="w-4 h-4 bg-indigo-600 rounded border-2 border-gray-300 dark:border-zinc-700"></div>
-          </div>
-          <span className="text-xs sm:text-sm font-bold text-gray-600 dark:text-zinc-400">More</span>
-        </div>
-      </div>
-
-      {/* Quick Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-        <div className="bg-gradient-to-b from-white to-gray-50 dark:from-zinc-900 dark:to-zinc-900/80 backdrop-blur-xl border-2 border-gray-300 dark:border-zinc-700 rounded-lg sm:rounded-xl p-4 sm:p-5 text-center hover:border-gray-400 dark:hover:border-zinc-600 transition-all shadow-[0_2px_8px_rgba(0,0,0,0.1)] dark:shadow-[0_2px_12px_rgba(0,0,0,0.3)]">
-          <div className="text-xl sm:text-2xl font-black text-gray-900 dark:text-white mb-1">{habitsData.total}</div>
-          <div className="text-xs sm:text-sm text-gray-600 dark:text-zinc-400 font-bold">Total Habits</div>
-        </div>
-        <div className="bg-gradient-to-b from-white to-emerald-50 dark:from-zinc-900 dark:to-emerald-900/10 backdrop-blur-xl border-2 border-emerald-300 dark:border-emerald-700 rounded-lg sm:rounded-xl p-4 sm:p-5 text-center hover:border-emerald-400 dark:hover:border-emerald-600 transition-all shadow-[0_2px_8px_rgba(16,185,129,0.2)] dark:shadow-[0_2px_12px_rgba(16,185,129,0.3)]">
-          <div className="text-xl sm:text-2xl font-black text-emerald-700 dark:text-emerald-300 mb-1">{habitsData.completed}</div>
-          <div className="text-xs sm:text-sm text-gray-600 dark:text-zinc-400 font-bold">Done Today</div>
-        </div>
-        <div className="bg-gradient-to-b from-white to-gray-50 dark:from-zinc-900 dark:to-zinc-900/80 backdrop-blur-xl border-2 border-gray-300 dark:border-zinc-700 rounded-lg sm:rounded-xl p-4 sm:p-5 text-center hover:border-gray-400 dark:hover:border-zinc-600 transition-all shadow-[0_2px_8px_rgba(0,0,0,0.1)] dark:shadow-[0_2px_12px_rgba(0,0,0,0.3)]">
-          <div className="text-xl sm:text-2xl font-black text-gray-900 dark:text-white mb-1">{tasksData.total}</div>
-          <div className="text-xs sm:text-sm text-gray-600 dark:text-zinc-400 font-bold">Total Tasks</div>
-        </div>
-        <div className="bg-gradient-to-b from-white to-emerald-50 dark:from-zinc-900 dark:to-emerald-900/10 backdrop-blur-xl border-2 border-emerald-300 dark:border-emerald-700 rounded-lg sm:rounded-xl p-4 sm:p-5 text-center hover:border-emerald-400 dark:hover:border-emerald-600 transition-all shadow-[0_2px_8px_rgba(16,185,129,0.2)] dark:shadow-[0_2px_12px_rgba(16,185,129,0.3)]">
-          <div className="text-xl sm:text-2xl font-black text-emerald-700 dark:text-emerald-300 mb-1">{tasksData.completed}</div>
-          <div className="text-xs sm:text-sm text-gray-600 dark:text-zinc-400 font-bold">Completed</div>
-        </div>
-      </div>
+      <section className="design-card p-5 sm:p-6">
+        <div className="mb-5 flex items-center justify-between"><div><p className="text-xs font-bold uppercase tracking-[0.16em] text-gray-500 dark:text-zinc-500">This week</p><h3 className="mt-1 text-lg font-bold text-gray-900 dark:text-white">Consistency at a glance</h3></div><Calendar size={19} className="text-gray-400" /></div>
+        <div className="grid grid-cols-7 gap-2 sm:gap-3">{streakData.weeklyProgress.map((day, index) => <div key={day.date} className="text-center"><div className="mb-2 text-[11px] font-medium text-gray-500 dark:text-zinc-500">{['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][index]}</div><div className="flex h-24 items-end justify-center rounded-lg bg-gray-50 p-2 dark:bg-zinc-800"><div className="w-full rounded-md bg-indigo-500 transition-all" style={{ height: `${Math.max(day.percentage, 7)}%`, opacity: day.percentage ? 1 : 0.22 }} /></div><div className="mt-2 text-xs font-semibold text-gray-700 dark:text-zinc-300">{day.percentage}%</div></div>)}</div>
+      </section>
     </div>
   );
 }

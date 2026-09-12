@@ -115,16 +115,17 @@ function AnalyticsTab({ userId }) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5 sm:space-y-7">
       {/* Header */}
       <div>
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Analytics Dashboard</h2>
-        <p className="text-gray-600 dark:text-zinc-400">Track your consistency and progress over time</p>
+        <p className="text-xs font-bold uppercase tracking-[0.16em] text-indigo-600 dark:text-indigo-300">Insights</p>
+        <h2 className="mt-1 text-2xl font-extrabold tracking-tight text-gray-900 dark:text-white mb-2">Your progress, clearly.</h2>
+        <p className="text-sm text-gray-600 dark:text-zinc-400">See the patterns behind your consistency and make the next week count.</p>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-gradient-to-b from-white to-indigo-50 dark:from-zinc-900 dark:to-indigo-900/10 backdrop-blur-xl border-2 border-indigo-300 dark:border-indigo-700 rounded-xl p-6 hover:border-indigo-400 dark:hover:border-indigo-600 transition-all shadow-[0_4px_12px_rgba(99,102,241,0.15)] dark:shadow-[0_4px_16px_rgba(99,102,241,0.25)]">
+      <div className="analytics-stat-grid grid grid-cols-2 gap-3 md:grid-cols-4">
+        <div className="analytics-stat bg-gradient-to-b from-white to-indigo-50 dark:from-zinc-900 dark:to-indigo-900/10 backdrop-blur-xl border-2 border-indigo-300 dark:border-indigo-700 rounded-xl p-4 hover:border-indigo-400 dark:hover:border-indigo-600 transition-all shadow-[0_4px_12px_rgba(99,102,241,0.15)] dark:shadow-[0_4px_16px_rgba(99,102,241,0.25)]">
           <div className="flex items-center justify-between mb-2">
             <Target className="w-5 h-5 text-indigo-500 dark:text-indigo-400 drop-shadow-md" />
             <span className="text-2xl font-black text-gray-900 dark:text-white">{stats.totalHabits}</span>
@@ -132,7 +133,7 @@ function AnalyticsTab({ userId }) {
           <p className="text-sm text-gray-700 dark:text-zinc-300 font-bold">Active Habits</p>
         </div>
 
-        <div className="bg-gradient-to-b from-white to-green-50 dark:from-zinc-900 dark:to-green-900/10 backdrop-blur-xl border-2 border-green-300 dark:border-green-700 rounded-xl p-6 hover:border-green-400 dark:hover:border-green-600 transition-all shadow-[0_4px_12px_rgba(34,197,94,0.15)] dark:shadow-[0_4px_16px_rgba(34,197,94,0.25)]">
+        <div className="analytics-stat bg-gradient-to-b from-white to-green-50 dark:from-zinc-900 dark:to-green-900/10 backdrop-blur-xl border-2 border-green-300 dark:border-green-700 rounded-xl p-4 hover:border-green-400 dark:hover:border-green-600 transition-all shadow-[0_4px_12px_rgba(34,197,94,0.15)] dark:shadow-[0_4px_16px_rgba(34,197,94,0.25)]">
           <div className="flex items-center justify-between mb-2">
             <TrendingUp className="w-5 h-5 text-green-500 dark:text-green-400 drop-shadow-md" />
             <span className="text-2xl font-black text-gray-900 dark:text-white">{stats.avgCompletion}%</span>
@@ -140,7 +141,7 @@ function AnalyticsTab({ userId }) {
           <p className="text-sm text-gray-700 dark:text-zinc-300 font-bold">Avg. Completion</p>
         </div>
 
-        <div className="bg-gradient-to-b from-white to-orange-50 dark:from-zinc-900 dark:to-orange-900/10 backdrop-blur-xl border-2 border-orange-300 dark:border-orange-700 rounded-xl p-6 hover:border-orange-400 dark:hover:border-orange-600 transition-all shadow-[0_4px_12px_rgba(249,115,22,0.15)] dark:shadow-[0_4px_16px_rgba(249,115,22,0.25)]">
+        <div className="analytics-stat bg-gradient-to-b from-white to-orange-50 dark:from-zinc-900 dark:to-orange-900/10 backdrop-blur-xl border-2 border-orange-300 dark:border-orange-700 rounded-xl p-4 hover:border-orange-400 dark:hover:border-orange-600 transition-all shadow-[0_4px_12px_rgba(249,115,22,0.15)] dark:shadow-[0_4px_16px_rgba(249,115,22,0.25)]">
           <div className="flex items-center justify-between mb-2">
             <Flame className="w-5 h-5 text-orange-500 dark:text-orange-400 drop-shadow-md" />
             <span className="text-2xl font-black text-gray-900 dark:text-white">{stats.streak}</span>
@@ -148,7 +149,7 @@ function AnalyticsTab({ userId }) {
           <p className="text-sm text-gray-700 dark:text-zinc-300 font-bold">Day Streak</p>
         </div>
 
-        <div className="bg-gradient-to-b from-white to-purple-50 dark:from-zinc-900 dark:to-purple-900/10 backdrop-blur-xl border-2 border-purple-300 dark:border-purple-700 rounded-xl p-6 hover:border-purple-400 dark:hover:border-purple-600 transition-all shadow-[0_4px_12px_rgba(168,85,247,0.15)] dark:shadow-[0_4px_16px_rgba(168,85,247,0.25)]">
+        <div className="analytics-stat bg-gradient-to-b from-white to-purple-50 dark:from-zinc-900 dark:to-purple-900/10 backdrop-blur-xl border-2 border-purple-300 dark:border-purple-700 rounded-xl p-4 hover:border-purple-400 dark:hover:border-purple-600 transition-all shadow-[0_4px_12px_rgba(168,85,247,0.15)] dark:shadow-[0_4px_16px_rgba(168,85,247,0.25)]">
           <div className="flex items-center justify-between mb-2">
             <BarChart3 className="w-5 h-5 text-purple-500 dark:text-purple-400 drop-shadow-md" />
             <span className="text-2xl font-black text-gray-900 dark:text-white">{stats.completedTasks}/{stats.totalTasks}</span>
@@ -193,12 +194,12 @@ function AnalyticsTab({ userId }) {
                 <div
                   className={`h-full transition-all duration-500 ease-out ${
                     day.percentage >= 75
-                      ? 'bg-gradient-to-r from-green-500 to-emerald-500'
+                      ? 'bg-indigo-600'
                       : day.percentage >= 50
-                      ? 'bg-gradient-to-r from-indigo-500 to-purple-500'
+                      ? 'bg-indigo-500'
                       : day.percentage >= 25
-                      ? 'bg-gradient-to-r from-amber-500 to-orange-500'
-                      : 'bg-gradient-to-r from-red-500 to-rose-500'
+                      ? 'bg-indigo-400'
+                      : 'bg-gray-300 dark:bg-zinc-600'
                   }`}
                   style={{ width: `${day.percentage}%` }}
                 >
@@ -217,19 +218,19 @@ function AnalyticsTab({ userId }) {
         <div className="mt-6 pt-6 border-t border-gray-200 dark:border-zinc-800">
           <div className="flex flex-wrap items-center gap-4 text-xs text-gray-600 dark:text-zinc-400">
             <div className="flex items-center space-x-2">
-              <div className="w-3 h-3 rounded bg-gradient-to-r from-green-500 to-emerald-500"></div>
+              <div className="w-3 h-3 rounded bg-indigo-600"></div>
               <span>Excellent (75%+)</span>
             </div>
             <div className="flex items-center space-x-2">
-              <div className="w-3 h-3 rounded bg-gradient-to-r from-indigo-500 to-purple-500"></div>
+              <div className="w-3 h-3 rounded bg-indigo-500"></div>
               <span>Good (50-74%)</span>
             </div>
             <div className="flex items-center space-x-2">
-              <div className="w-3 h-3 rounded bg-gradient-to-r from-amber-500 to-orange-500"></div>
+              <div className="w-3 h-3 rounded bg-indigo-400"></div>
               <span>Fair (25-49%)</span>
             </div>
             <div className="flex items-center space-x-2">
-              <div className="w-3 h-3 rounded bg-gradient-to-r from-red-500 to-rose-500"></div>
+              <div className="w-3 h-3 rounded bg-gray-300 dark:bg-zinc-600"></div>
               <span>Needs Work (&lt;25%)</span>
             </div>
           </div>

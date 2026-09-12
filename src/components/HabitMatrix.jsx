@@ -6,6 +6,15 @@ function HabitMatrix({ habits, toggleDay, calculateStreak, deleteHabit, addHabit
   const today = new Date();
   // Get local date in YYYY-MM-DD format without timezone conversion
   const todayISO = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+  const mobileWeekDates = useMemo(() => Array.from({ length: 7 }, (_, index) => {
+    const date = new Date(today);
+    date.setDate(today.getDate() - (6 - index));
+    return {
+      date: `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`,
+      label: date.toLocaleDateString('en-US', { weekday: 'short' }).slice(0, 1),
+      day: date.getDate()
+    };
+  }), [todayISO]);
   const [viewDate, setViewDate] = useState(() => new Date(today.getFullYear(), today.getMonth(), 1));
   const [selectedYear, setSelectedYear] = useState(today.getFullYear());
   const [selectedMonth, setSelectedMonth] = useState(today.getMonth());
@@ -224,7 +233,7 @@ function HabitMatrix({ habits, toggleDay, calculateStreak, deleteHabit, addHabit
       )}
 
       {/* Daily Habits Calendar Table - MAIN FOCUS */}
-      <div className="bg-white dark:bg-zinc-900 border-2 border-gray-800 dark:border-zinc-700 rounded-xl overflow-hidden shadow-[0_4px_16px_rgba(0,0,0,0.1)]">
+      <div className="habit-monthly-table hidden md:block bg-white dark:bg-zinc-900 border-2 border-gray-800 dark:border-zinc-700 rounded-xl overflow-hidden shadow-[0_4px_16px_rgba(0,0,0,0.1)]">
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
             <thead>
@@ -391,6 +400,46 @@ function HabitMatrix({ habits, toggleDay, calculateStreak, deleteHabit, addHabit
             </tbody>
           </table>
         </div>
+      </div>
+
+      <div className="mobile-habit-list space-y-3 md:hidden">
+        {habits.length === 0 ? (
+          <div className="design-card p-5 text-center text-sm text-gray-500 dark:text-zinc-400">Your habits will appear here.</div>
+        ) : habits.map((habit) => {
+          const streak = calculateStreak(habit.completedDates);
+
+          return (
+            <article key={habit.id} className="design-card p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <h3 className="truncate text-sm font-semibold text-gray-900 dark:text-white">{habit.title}</h3>
+                  <p className="mt-1 text-xs text-gray-500 dark:text-zinc-400">{streak} day streak</p>
+                </div>
+                <span className="shrink-0 text-xs text-gray-500 dark:text-zinc-400">{habit.completedDates?.filter((date) => date.startsWith(`${year}-${String(month + 1).padStart(2, '0')}`)).length || 0} this month</span>
+              </div>
+              <div className="mt-4 grid grid-cols-7 gap-1.5">
+                {mobileWeekDates.map(({ date, label, day }) => {
+                  const isCompleted = habit.completedDates?.includes(date);
+                  const isToday = date === todayISO;
+
+                  return (
+                    <button
+                      key={date}
+                      type="button"
+                      onClick={() => handleToggle(habit.id, date)}
+                      disabled={!isToday}
+                      className={`flex min-h-12 flex-col items-center justify-center rounded-lg border text-[11px] transition-colors ${isCompleted ? 'border-indigo-500 bg-indigo-500 text-white' : 'border-gray-200 bg-gray-50 text-gray-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400'} ${isToday ? 'ring-2 ring-indigo-200 dark:ring-indigo-900' : 'opacity-70'}`}
+                      aria-label={`${habit.title} ${date}${isCompleted ? ', completed' : ''}`}
+                    >
+                      <span className="font-semibold">{label}</span>
+                      <span className="mt-0.5">{day}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </article>
+          );
+        })}
       </div>
 
       {/* Overview Analytics Grid */}

@@ -1,0 +1,13 @@
+<svg viewBox="0 0 700 180" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">FocusLab</title>
+  <desc id="desc">FocusLab logo with the tagline Build a Better You.</desc>
+  <g fill="#635BFF">
+    <path d="M28 41c20-20 43-30 70-30h76c-4 25-16 46-36 63-18 15-38 22-62 22H28V41Z"/>
+    <path d="M28 106h92c-10 17-22 33-38 48l-54 54V106Z"/>
+    <circle cx="153" cy="129" r="34"/>
+  </g>
+  <text x="212" y="91" font-family="Inter, Arial, sans-serif" font-size="64" font-weight="800" letter-spacing="-3">
+    <tspan fill="#18181B">Focus</tspan><tspan fill="#635BFF">Lab</tspan>
+  </text>
+  <text x="216" y="121" fill="#71717A" font-family="Inter, Arial, sans-serif" font-size="11" font-weight="500" letter-spacing="4.5">BUILD A BETTER YOU</text>
+</svg>

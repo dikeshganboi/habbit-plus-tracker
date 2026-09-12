@@ -63,11 +63,10 @@ function AIHabitCoach({ onAddHabit, userId, existingHabits = [] }) {
       {/* Trigger Button */}
       <button
         onClick={() => setIsOpen(true)}
-        className="flex items-center space-x-1.5 sm:space-x-2 px-3 sm:px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-lg font-medium transition-all shadow-lg shadow-purple-500/20 dark:shadow-purple-500/30 text-sm sm:text-base"
+        className="soft-button flex items-center space-x-1.5 sm:space-x-2 px-3 sm:px-4 py-2 text-sm font-medium"
       >
         <Brain className="w-4 h-4 sm:w-5 sm:h-5" />
-        <span>AI Coach</span>
-        <Sparkles className="w-3 h-3 sm:w-4 sm:h-4" />
+        <span>Focus Coach</span>
       </button>
 
       {/* Modal */}

@@ -109,7 +109,7 @@ function ProfileSettings({ user, onUserUpdated }) {
         ) : subscription?.isActive ? (
           <div className="space-y-4">
             {/* Active Status Banner */}
-            <div className="bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl p-4 flex items-center justify-between">
+            <div className="subscription-success-banner bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl p-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <CheckCircle2 className="w-8 h-8 text-white drop-shadow-md" strokeWidth={2.5} />
                 <div>
@@ -196,7 +196,7 @@ function ProfileSettings({ user, onUserUpdated }) {
 
             {/* Coupon Info */}
             {subscription.usedCoupon && subscription.couponUsed && (
-              <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-2 border-green-300 dark:border-green-700 rounded-xl p-4">
+              <div className="subscription-coupon-banner bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-2 border-green-300 dark:border-green-700 rounded-xl p-4">
                 <div className="flex items-center gap-3">
                   <Ticket className="w-6 h-6 text-green-600 dark:text-green-400" />
                   <div>
@@ -213,7 +213,7 @@ function ProfileSettings({ user, onUserUpdated }) {
         ) : (
           <div className="space-y-4">
             {/* Inactive Status Banner */}
-            <div className="bg-gradient-to-r from-gray-500 to-gray-600 dark:from-zinc-700 dark:to-zinc-800 rounded-xl p-4 flex items-center gap-3">
+            <div className="subscription-inactive-banner bg-gradient-to-r from-gray-500 to-gray-600 dark:from-zinc-700 dark:to-zinc-800 rounded-xl p-4 flex items-center gap-3">
               <XCircle className="w-8 h-8 text-white drop-shadow-md" strokeWidth={2.5} />
               <div>
                 <p className="text-white font-black text-lg">No Active Subscription</p>

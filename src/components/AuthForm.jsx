@@ -110,13 +110,17 @@ function AuthForm({ onAuth }) {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-black flex items-center justify-center px-3 sm:px-4 py-6">
-      <div className="w-full max-w-md bg-gradient-to-b from-white to-gray-50 dark:from-zinc-900 dark:to-zinc-900/80 border-2 border-gray-300 dark:border-zinc-700 rounded-xl p-6 sm:p-8 shadow-[0_8px_32px_rgba(0,0,0,0.15)] dark:shadow-[0_8px_40px_rgba(0,0,0,0.4)]">
-        <div className="flex items-center space-x-2 sm:space-x-3 mb-6">
-          <img src="/logo.svg" alt="FocusLab Logo" className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg shadow-[0_2px_8px_rgba(99,102,241,0.4)]" />
-          <h1 className="text-lg sm:text-xl font-black text-gray-900 dark:text-white tracking-wide">FocusLab</h1>
+    <div className="app-shell min-h-screen flex items-center justify-center px-4 py-8">
+      <div className="w-full max-w-md design-card p-6 sm:p-8 shadow-[0_20px_50px_rgba(37,43,75,0.12)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)]">
+        <div className="mb-6 flex items-center gap-3">
+          <img src="/logo.svg" alt="FocusLab Logo" className="h-10 w-10" />
+          <div className="leading-none">
+            <span className="block text-xl font-bold tracking-tight text-gray-900 dark:text-white">Focus<span className="text-indigo-600 dark:text-indigo-400">Lab</span></span>
+            <span className="mt-1 block text-[9px] font-medium uppercase tracking-[0.2em] text-gray-500 dark:text-zinc-400">Build a better you</span>
+          </div>
         </div>
-        <h2 className="text-gray-900 dark:text-white text-base sm:text-lg font-semibold mb-4">
+        <p className="text-xs font-bold uppercase tracking-[0.16em] text-indigo-600 dark:text-indigo-300 mb-2">Welcome back</p>
+        <h2 className="text-gray-900 dark:text-white text-2xl font-extrabold tracking-tight mb-6">
           {mode === 'login' ? 'Sign In to Your Account' : 'Create a New Account'}
         </h2>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -127,7 +131,7 @@ function AuthForm({ onAuth }) {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-white dark:bg-zinc-800 border-2 border-gray-400 dark:border-zinc-600 rounded-md px-3 py-2.5 sm:py-2 text-sm sm:text-base text-gray-900 dark:text-white focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 font-medium shadow-inner"
+              className="w-full bg-white dark:bg-zinc-800 border border-gray-300 dark:border-zinc-600 rounded-lg px-3 py-3 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 font-medium"
               placeholder="you@example.com"
               autoComplete="email"
             />
@@ -139,7 +143,7 @@ function AuthForm({ onAuth }) {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-white dark:bg-zinc-800 border-2 border-gray-400 dark:border-zinc-600 rounded-md px-3 py-2.5 sm:py-2 text-sm sm:text-base text-gray-900 dark:text-white focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 font-medium shadow-inner"
+              className="w-full bg-white dark:bg-zinc-800 border border-gray-300 dark:border-zinc-600 rounded-lg px-3 py-3 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 font-medium"
               placeholder="••••••••"
               autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
             />
@@ -157,7 +161,7 @@ function AuthForm({ onAuth }) {
           <button
             type="submit"
             disabled={loading}
-            className="w-full flex justify-center items-center space-x-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 disabled:opacity-50 disabled:pointer-events-none text-white font-black px-4 py-3 sm:py-2.5 rounded-md transition-colors text-sm sm:text-base shadow-[0_4px_12px_rgba(99,102,241,0.4)] hover:shadow-[0_6px_16px_rgba(99,102,241,0.5)] border-2 border-indigo-700"
+            className="primary-button w-full flex justify-center items-center space-x-2 disabled:opacity-50 disabled:pointer-events-none font-bold px-4 py-3 text-sm"
           >
             <span>{loading ? (mode === 'login' ? 'Signing In...' : 'Creating...') : (mode === 'login' ? 'Sign In' : 'Sign Up')}</span>
           </button>
@@ -168,7 +172,7 @@ function AuthForm({ onAuth }) {
             type="button"
             onClick={handleGoogleSignIn}
             disabled={loading}
-            className="w-full flex items-center justify-center gap-2 bg-white dark:bg-zinc-800 border-2 border-gray-400 dark:border-zinc-600 rounded-md px-4 py-3 sm:py-2.5 text-sm sm:text-base font-semibold text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-zinc-700 transition-colors"
+            className="soft-button w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-semibold"
             aria-label="Sign in with Google"
           >
             <span>Continue with Google</span>

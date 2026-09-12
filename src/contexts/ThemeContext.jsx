@@ -39,7 +39,7 @@ export const ThemeProvider = ({ children }) => {
     // Update meta theme-color for mobile browsers
     const metaThemeColor = document.querySelector('meta[name="theme-color"]');
     if (metaThemeColor) {
-      metaThemeColor.setAttribute('content', theme === 'dark' ? '#000000' : '#ffffff');
+      metaThemeColor.setAttribute('content', theme === 'dark' ? '#111318' : '#f6f5f1');
     }
   }, [theme]);
 

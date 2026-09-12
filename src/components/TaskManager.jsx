@@ -18,6 +18,7 @@ function TaskManager({ userId, onXPEarned }) {
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [editingTaskId, setEditingTaskId] = useState(null);
   const [editText, setEditText] = useState('');
+  const [showAddTask, setShowAddTask] = useState(false);
   
   const categories = ['Personal', 'Work', 'Health', 'Learning', 'Shopping', 'Other'];
 
@@ -64,6 +65,7 @@ function TaskManager({ userId, onXPEarned }) {
       setNewTaskPriority('Medium');
       setNewTaskCategory('Personal');
       setNewTaskDueDate('');
+      setShowAddTask(false);
       fetchTasks();
     } catch (error) {
       console.error('Error adding task:', error);
@@ -200,16 +202,6 @@ function TaskManager({ userId, onXPEarned }) {
   const completedTasks = tasks.filter(t => t.completed).length;
   const overdueTasks = tasks.filter(t => !t.completed && t.dueDate && new Date(t.dueDate) < new Date()).length;
 
-  const getCategoryIcon = (category) => {
-    switch (category) {
-      case 'Work': return '💼';
-      case 'Health': return '❤️';
-      case 'Learning': return '📚';
-      case 'Shopping': return '🛒';
-      default: return '📌';
-    }
-  };
-
   const isOverdue = (dueDate) => {
     if (!dueDate) return false;
     return new Date(dueDate) < new Date() && new Date(dueDate).toDateString() !== new Date().toDateString();
@@ -224,13 +216,15 @@ function TaskManager({ userId, onXPEarned }) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5 sm:space-y-7">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">Task Manager</h2>
-          <p className="text-gray-600 dark:text-zinc-400 mt-1 text-sm">Organize and prioritize your to-do list</p>
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-indigo-600 dark:text-indigo-300">Execution</p>
+          <h2 className="mt-1 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Your tasks</h2>
+          <p className="text-gray-600 dark:text-zinc-400 mt-1 text-sm">A clear list for the work that matters.</p>
         </div>
+        <button onClick={() => setShowAddTask(true)} className="primary-button inline-flex shrink-0 items-center gap-2 px-3 py-2 text-sm font-semibold" aria-label="Create a new task"><Plus size={16} /><span className="hidden sm:inline">New task</span></button>
       </div>
 
       {/* Stats */}
@@ -312,15 +306,16 @@ function TaskManager({ userId, onXPEarned }) {
                   : 'bg-gray-200 dark:bg-zinc-800 text-gray-700 dark:text-zinc-300 hover:bg-gray-300 dark:hover:bg-zinc-700'
               }`}
             >
-              {getCategoryIcon(cat)} {cat}
+              {cat}
             </button>
           ))}
         </div>
       </div>
 
       {/* Add Task Form */}
-      <form onSubmit={addTask} className="bg-gradient-to-b from-white to-gray-50 dark:from-zinc-900 dark:to-zinc-900/80 border-2 border-gray-300 dark:border-zinc-700 rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-[0_4px_16px_rgba(0,0,0,0.1)] dark:shadow-[0_4px_20px_rgba(0,0,0,0.4)]">
+      {showAddTask && <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/35 p-4 backdrop-blur-[2px]" role="dialog" aria-modal="true" aria-labelledby="add-task-title"><form onSubmit={addTask} className="w-full max-w-lg rounded-2xl border border-gray-200 bg-white p-5 shadow-2xl dark:border-zinc-700 dark:bg-zinc-900 sm:p-6">
         <div className="space-y-3">
+          <div className="mb-4 flex items-center justify-between"><div><p className="text-xs font-bold uppercase tracking-[0.16em] text-indigo-600 dark:text-indigo-300">New task</p><h3 id="add-task-title" className="mt-1 text-xl font-bold text-gray-900 dark:text-white">What needs your attention?</h3></div><button type="button" onClick={() => setShowAddTask(false)} className="text-gray-400 hover:text-gray-900 dark:hover:text-white" aria-label="Close new task dialog"><X size={19} /></button></div>
           <input
             type="text"
             value={newTaskText}
@@ -334,9 +329,9 @@ function TaskManager({ userId, onXPEarned }) {
               onChange={(e) => setNewTaskPriority(e.target.value)}
               className="bg-white dark:bg-zinc-800 border-2 border-gray-400 dark:border-zinc-600 rounded-lg px-4 py-2.5 text-gray-900 dark:text-white focus:outline-none focus:border-indigo-500 cursor-pointer text-sm font-medium shadow-inner"
             >
-              <option value="High">🔴 High Priority</option>
-              <option value="Medium">🟡 Medium</option>
-              <option value="Low">🟢 Low Priority</option>
+              <option value="High">High Priority</option>
+              <option value="Medium">Medium Priority</option>
+              <option value="Low">Low Priority</option>
             </select>
             
             <select
@@ -345,7 +340,7 @@ function TaskManager({ userId, onXPEarned }) {
               className="bg-white dark:bg-zinc-800 border-2 border-gray-400 dark:border-zinc-600 rounded-lg px-4 py-2.5 text-gray-900 dark:text-white focus:outline-none focus:border-indigo-500 cursor-pointer text-sm font-medium shadow-inner"
             >
               {categories.map(cat => (
-                <option key={cat} value={cat}>{getCategoryIcon(cat)} {cat}</option>
+                <option key={cat} value={cat}>{cat}</option>
               ))}
             </select>
             
@@ -358,13 +353,13 @@ function TaskManager({ userId, onXPEarned }) {
           </div>
           <button
             type="submit"
-            className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-6 py-3 rounded-lg font-black flex items-center justify-center space-x-2 transition-all shadow-[0_4px_12px_rgba(99,102,241,0.4)] hover:shadow-[0_6px_16px_rgba(99,102,241,0.5)] border-2 border-indigo-700"
+            className="primary-button w-full px-6 py-3 font-semibold flex items-center justify-center space-x-2"
           >
             <Plus size={20} />
             <span>Add Task</span>
           </button>
         </div>
-      </form>
+      </form></div>}
 
       {/* Filter Tabs */}
       <div className="flex space-x-2 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-lg sm:rounded-xl p-2">
@@ -429,7 +424,7 @@ function TaskManager({ userId, onXPEarned }) {
               return (
                 <div
                   key={task.id}
-                  className={`bg-gradient-to-b from-white to-gray-50 dark:from-zinc-800 dark:to-zinc-850 border-2 border-gray-300 dark:border-zinc-700 rounded-xl p-4 transition-all hover:border-gray-400 dark:hover:border-zinc-600 hover:shadow-[0_4px_12px_rgba(0,0,0,0.1)] dark:hover:shadow-[0_4px_16px_rgba(0,0,0,0.3)] ${
+                  className={`task-item bg-gradient-to-b from-white to-gray-50 dark:from-zinc-800 dark:to-zinc-850 border-2 border-gray-300 dark:border-zinc-700 rounded-xl p-4 transition-all hover:border-gray-400 dark:hover:border-zinc-600 hover:shadow-[0_4px_12px_rgba(0,0,0,0.1)] dark:hover:shadow-[0_4px_16px_rgba(0,0,0,0.3)] ${
                     task.completed ? 'opacity-60' : 'shadow-sm'
                   }`}
                 >
@@ -438,7 +433,7 @@ function TaskManager({ userId, onXPEarned }) {
                       {/* Checkbox */}
                       <button
                         onClick={() => toggleTask(task.id)}
-                        className="flex-shrink-0 w-6 h-6 mt-0.5 rounded-lg border-2 border-gray-400 dark:border-zinc-600 flex items-center justify-center hover:border-indigo-600 transition-all"
+                        className="task-checkbox flex-shrink-0 w-6 h-6 mt-0.5 rounded-lg border-2 border-gray-400 dark:border-zinc-600 flex items-center justify-center hover:border-indigo-600 transition-all"
                       >
                         {task.completed && (
                           <CheckCircle2 size={20} className="text-indigo-600" />
@@ -504,7 +499,7 @@ function TaskManager({ userId, onXPEarned }) {
                               )}
                               
                               <span className="text-xs font-bold px-2 py-0.5 rounded bg-gray-200 dark:bg-zinc-700 text-gray-700 dark:text-zinc-300">
-                                {getCategoryIcon(task.category || 'Personal')} {task.category || 'Personal'}
+                                {task.category || 'Personal'}
                               </span>
                             </div>
                           </>

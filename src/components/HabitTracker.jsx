@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { collection, query, getDocs, addDoc, updateDoc, doc, deleteDoc } from 'firebase/firestore';
 import { db } from '../firebase';
-import { Plus, Trash2, Flame, Calendar, CalendarDays } from 'lucide-react';
+import { Plus, Trash2, Flame, Calendar, CalendarDays, X } from 'lucide-react';
 import HabitMatrix from './HabitMatrix';
 import HabitAnalysis from './HabitAnalysis';
 import ProgressCharts from './ProgressCharts';
@@ -18,6 +18,7 @@ function HabitTracker({ userId, onXPEarned }) {
   const [viewMode, setViewMode] = useState('monthly'); // 'monthly' or 'weekly'
   const [editingHabitId, setEditingHabitId] = useState(null);
   const [editGoalValue, setEditGoalValue] = useState('');
+  const [showAddHabit, setShowAddHabit] = useState(false);
 
   const daysOfWeek = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
   
@@ -93,6 +94,7 @@ function HabitTracker({ userId, onXPEarned }) {
       
       setNewHabitTitle('');
       setNewHabitGoal('');
+      setShowAddHabit(false);
       fetchHabits();
     } catch (error) {
       console.error('Error adding habit:', error);
@@ -281,14 +283,16 @@ function HabitTracker({ userId, onXPEarned }) {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5 sm:space-y-7">
       {/* Header */}
       <div className="space-y-3 sm:space-y-0">
-        <div className="flex items-start justify-between">
+        <div className="flex items-start justify-between gap-4">
           <div>
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">Habit Tracker</h2>
-            <p className="text-gray-600 dark:text-zinc-400 mt-1 text-sm">Build consistency, one day at a time</p>
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-indigo-600 dark:text-indigo-300">Consistency</p>
+            <h2 className="mt-1 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Your habits</h2>
+            <p className="text-gray-600 dark:text-zinc-400 mt-1 text-sm">Small actions, made visible.</p>
           </div>
+          <button onClick={() => setShowAddHabit(true)} className="primary-button inline-flex shrink-0 items-center gap-2 px-3 py-2 text-sm font-semibold" aria-label="Create a new habit"><Plus size={16} /> <span className="hidden sm:inline">New habit</span></button>
         </div>
         <div className="flex flex-wrap gap-2">
           <AIHabitCoach onAddHabit={handleAIAddHabit} userId={userId} existingHabits={habits} />
@@ -325,6 +329,19 @@ function HabitTracker({ userId, onXPEarned }) {
         </div>
       </div>
 
+      {showAddHabit && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/35 p-4 backdrop-blur-[2px]" role="dialog" aria-modal="true" aria-labelledby="add-habit-title">
+          <div className="w-full max-w-md rounded-2xl border border-gray-200 bg-white p-5 shadow-2xl dark:border-zinc-700 dark:bg-zinc-900 sm:p-6">
+            <div className="mb-5 flex items-center justify-between"><div><p className="text-xs font-bold uppercase tracking-[0.16em] text-indigo-600 dark:text-indigo-300">New habit</p><h3 id="add-habit-title" className="mt-1 text-xl font-bold text-gray-900 dark:text-white">What will you practice?</h3></div><button onClick={() => setShowAddHabit(false)} className="text-gray-400 hover:text-gray-900 dark:hover:text-white" aria-label="Close new habit dialog"><X size={19} /></button></div>
+            <form onSubmit={addHabit} className="space-y-4">
+              <div><label htmlFor="habit-title" className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-zinc-300">Habit name</label><input id="habit-title" type="text" placeholder="Morning walk" value={newHabitTitle} onChange={(e) => setNewHabitTitle(e.target.value)} className="w-full bg-white px-3 py-2.5 text-sm text-gray-900 dark:bg-zinc-800 dark:text-white" autoFocus required /></div>
+              <div><label htmlFor="habit-goal" className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-zinc-300">Monthly goal <span className="font-normal text-gray-400">(optional)</span></label><input id="habit-goal" type="number" min="1" max="31" placeholder="20 days" value={newHabitGoal} onChange={(e) => setNewHabitGoal(e.target.value)} className="w-full bg-white px-3 py-2.5 text-sm text-gray-900 dark:bg-zinc-800 dark:text-white" /></div>
+              <div className="flex justify-end gap-2 pt-2"><button type="button" onClick={() => setShowAddHabit(false)} className="soft-button px-3 py-2 text-sm font-medium">Cancel</button><button type="submit" className="primary-button px-4 py-2 text-sm font-semibold">Create habit</button></div>
+            </form>
+          </div>
+        </div>
+      )}
+
       {viewMode === 'monthly' && (
         <>
           {/* Monthly Matrix + Analysis + Mood */}
@@ -335,7 +352,7 @@ function HabitTracker({ userId, onXPEarned }) {
                 toggleDay={toggleDay} 
                 calculateStreak={calculateStreak} 
                 deleteHabit={deleteHabit}
-                addHabit={addHabit}
+                addHabit={null}
                 newHabitTitle={newHabitTitle}
                 setNewHabitTitle={setNewHabitTitle}
                 newHabitGoal={newHabitGoal}
@@ -424,7 +441,7 @@ function HabitTracker({ userId, onXPEarned }) {
                         )}
                         {longestStreak > streak && (
                           <div className="flex items-center space-x-1 bg-yellow-500/20 text-yellow-400 px-2 py-1 rounded-lg text-xs">
-                            <span>🏆 Best: {longestStreak}</span>
+                            <span>Best: {longestStreak}</span>
                           </div>
                         )}
                       </div>

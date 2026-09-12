@@ -7,14 +7,14 @@ function ThemeToggle() {
   return (
     <button
       onClick={toggleTheme}
-      className="relative w-14 h-7 bg-zinc-700 dark:bg-zinc-800 rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-black"
+      className="relative w-14 h-7 bg-gray-200 dark:bg-zinc-700 rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-[#111318]"
       aria-label={`Switch to ${isDark ? 'light' : 'dark'} mode`}
       title={`Switch to ${isDark ? 'light' : 'dark'} mode`}
     >
       {/* Sliding background */}
       <span
         className={`absolute inset-0 rounded-full transition-colors duration-300 ${
-          isDark ? 'bg-indigo-600' : 'bg-amber-400'
+          isDark ? 'bg-[#8795f2]' : 'bg-[#4257c8]'
         }`}
       />
       
