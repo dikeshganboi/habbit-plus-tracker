@@ -87,7 +87,7 @@ Important:
       } catch (sdkError) {
         lastError = sdkError;
         if (/404|not found/i.test(sdkError.message)) {
-          console.warn(`⚠️ Model ${candidateModel} returned 404. Trying next fallback...`);
+          console.warn(`Model ${candidateModel} returned 404. Trying next fallback...`);
           continue; // try next model
         }
         console.warn(`SDK error for model ${candidateModel}: ${sdkError.message}. Trying REST fallback...`);
@@ -107,7 +107,7 @@ Important:
             const errorPayload = await resp.text();
             lastError = new Error(`REST ${candidateModel} failed (${resp.status}): ${errorPayload}`);
             if (resp.status === 404) {
-              console.warn(`⚠️ REST also 404 for ${candidateModel}. Next fallback...`);
+              console.warn(`REST also 404 for ${candidateModel}. Next fallback...`);
               continue;
             }
             console.warn(`REST error for ${candidateModel}: ${lastError.message}`);

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { updateProfile } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '../firebase';
-import { Crown, Calendar, CreditCard, CheckCircle2, XCircle, Clock, Ticket } from 'lucide-react';
+import { Crown, Calendar, CreditCard, Check, CheckCircle2, XCircle, Clock, Ticket } from 'lucide-react';
 
 function ProfileSettings({ user, onUserUpdated }) {
   const [displayName, setDisplayName] = useState(user?.displayName || '');
@@ -204,8 +204,9 @@ function ProfileSettings({ user, onUserUpdated }) {
                     <p className="text-lg font-black text-green-600 dark:text-green-400">{subscription.couponUsed}</p>
                   </div>
                 </div>
-                <p className="text-xs text-gray-600 dark:text-zinc-400 font-semibold mt-2">
-                  ✓ You have used your one-time coupon. After expiry, payment will be required.
+                <p className="flex items-start gap-1.5 text-xs text-gray-600 dark:text-zinc-400 font-semibold mt-2">
+                  <Check size={14} className="mt-0.5 shrink-0 text-green-600 dark:text-green-400" aria-hidden="true" />
+                  <span>You have used your one-time coupon. After expiry, payment will be required.</span>
                 </p>
               </div>
             )}

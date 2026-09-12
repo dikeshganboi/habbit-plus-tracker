@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { collection, query, getDocs, addDoc, updateDoc, doc, deleteDoc } from 'firebase/firestore';
 import { db } from '../firebase';
-import { Plus, Trash2, Flame, Calendar, CalendarDays, X } from 'lucide-react';
+import { Plus, Trash2, Flame, Calendar, CalendarDays, X, BarChart3, MessageCircle, Pencil } from 'lucide-react';
 import HabitMatrix from './HabitMatrix';
 import HabitAnalysis from './HabitAnalysis';
 import ProgressCharts from './ProgressCharts';
@@ -301,7 +301,7 @@ function HabitTracker({ userId, onXPEarned }) {
             className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-gray-200 dark:bg-zinc-800 text-gray-600 dark:text-zinc-400 hover:text-gray-900 dark:hover:text-white text-xs sm:text-sm transition-all"
             title="Export habits to CSV"
           >
-            <span>📊</span>
+            <BarChart3 size={15} aria-hidden="true" />
             <span className="hidden sm:inline">Habits</span>
           </button>
           <button
@@ -309,7 +309,7 @@ function HabitTracker({ userId, onXPEarned }) {
             className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-gray-200 dark:bg-zinc-800 text-gray-600 dark:text-zinc-400 hover:text-gray-900 dark:hover:text-white text-xs sm:text-sm transition-all"
             title="Export moods to CSV"
           >
-            <span>💭</span>
+            <MessageCircle size={15} aria-hidden="true" />
             <span className="hidden sm:inline">Moods</span>
           </button>
           <button
@@ -476,7 +476,7 @@ function HabitTracker({ userId, onXPEarned }) {
                             onClick={() => { setEditingHabitId(habit.id); setEditGoalValue(habit.goalDaysPerMonth || ''); }}
                             className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300"
                           >
-                            Goal: {habit.goalDaysPerMonth || 'None'} ✏️
+                            <span className="inline-flex items-center gap-1">Goal: {habit.goalDaysPerMonth || 'None'} <Pencil size={12} aria-hidden="true" /></span>
                           </button>
                         )}
                       </div>

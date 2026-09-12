@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { signOut } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { auth, db } from '../firebase';
-import { ArrowLeft, Lock, Crown, CheckCircle2, X } from 'lucide-react';
+import { ArrowLeft, Lock, Crown, Gift, Check, CheckCircle2, X } from 'lucide-react';
 
 function SubscriptionGuard({ userId, children }) {
   const [subscriptionStatus, setSubscriptionStatus] = useState(null);
@@ -250,7 +250,7 @@ function SubscriptionGuard({ userId, children }) {
             {/* Coupon Section */}
             <div className="mb-6 p-4 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-2 border-green-300 dark:border-green-700 rounded-xl">
               <div className="flex items-center justify-between mb-3">
-                <h4 className="text-sm font-black text-gray-900 dark:text-white">🎁 Have a Coupon Code?</h4>
+                <h4 className="flex items-center gap-2 text-sm font-black text-gray-900 dark:text-white"><Gift size={16} className="text-green-600 dark:text-green-400" aria-hidden="true" /> Have a Coupon Code?</h4>
                 {!subscriptionStatus?.usedCoupon && (
                   <span className="text-xs font-bold text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900/30 px-2 py-1 rounded">
                     Try: 10GET0
@@ -259,8 +259,9 @@ function SubscriptionGuard({ userId, children }) {
               </div>
               
               {subscriptionStatus?.usedCoupon ? (
-                <p className="text-xs text-gray-600 dark:text-zinc-400 font-semibold">
-                  ✓ You have already used your one-time coupon
+                <p className="flex items-center gap-1.5 text-xs text-gray-600 dark:text-zinc-400 font-semibold">
+                  <Check size={14} className="text-green-600 dark:text-green-400" aria-hidden="true" />
+                  <span>You have already used your one-time coupon</span>
                 </p>
               ) : (
                 <>
@@ -374,9 +375,9 @@ function SubscriptionGuard({ userId, children }) {
               </div>
 
               <div className="text-sm text-gray-600 dark:text-zinc-400 font-semibold space-y-2">
-                <p>✓ Access to all premium features</p>
-                <p>✓ Valid for 30 days</p>
-                <p>✓ Auto-renewal can be disabled</p>
+                <p className="flex items-center gap-1.5"><Check size={15} aria-hidden="true" /> Access to all premium features</p>
+                <p className="flex items-center gap-1.5"><Check size={15} aria-hidden="true" /> Valid for 30 days</p>
+                <p className="flex items-center gap-1.5"><Check size={15} aria-hidden="true" /> Auto-renewal can be disabled</p>
               </div>
             </div>
 

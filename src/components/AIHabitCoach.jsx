@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Wand2, Sparkles, X, Plus, Loader2, Brain } from 'lucide-react';
+import { Wand2, Sparkles, X, Plus, Loader2, Brain, RotateCcw } from 'lucide-react';
 // New SDK service (primary)
 import { generateHabitSuggestionsNew } from '../services/geminiNew';
 // Legacy fallback service (optional)
@@ -71,10 +71,10 @@ function AIHabitCoach({ onAddHabit, userId, existingHabits = [] }) {
 
       {/* Modal */}
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 dark:bg-black/80 backdrop-blur-sm p-3 sm:p-4">
-          <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl sm:rounded-2xl shadow-2xl max-w-2xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/70 p-3 pt-4 dark:bg-black/80 sm:p-4 sm:pt-8">
+          <div className="flex max-h-[calc(100dvh-2rem)] w-full max-w-2xl flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-2xl dark:border-zinc-800 dark:bg-zinc-900 sm:max-h-[calc(100dvh-4rem)] sm:rounded-2xl">
             {/* Header */}
-            <div className="flex items-center justify-between p-4 sm:p-6 border-b border-zinc-200 dark:border-zinc-800">
+            <div className="flex shrink-0 items-center justify-between border-b border-zinc-200 p-4 dark:border-zinc-800 sm:p-6">
               <div className="flex items-center space-x-2 sm:space-x-3">
                 <div className="w-9 h-9 sm:w-10 sm:h-10 bg-gradient-to-br from-purple-600 to-pink-600 rounded-lg flex items-center justify-center">
                   <Brain className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
@@ -93,7 +93,7 @@ function AIHabitCoach({ onAddHabit, userId, existingHabits = [] }) {
             </div>
 
             {/* Content */}
-            <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+            <div className="min-h-0 flex-1 space-y-4 overflow-y-auto p-4 sm:space-y-6 sm:p-6">
               {/* Input Section */}
               <div className="space-y-3">
                 <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-zinc-300">
@@ -190,7 +190,7 @@ function AIHabitCoach({ onAddHabit, userId, existingHabits = [] }) {
                     disabled={loading}
                     className="w-full py-2.5 bg-gray-100 dark:bg-zinc-800 hover:bg-gray-200 dark:hover:bg-zinc-700 text-gray-700 dark:text-zinc-300 rounded-lg text-xs sm:text-sm font-medium transition-all border border-gray-300 dark:border-zinc-700 disabled:opacity-50"
                   >
-                    🔄 Generate New Suggestions
+                    <span className="inline-flex items-center justify-center gap-1.5"><RotateCcw size={14} aria-hidden="true" /> Generate New Suggestions</span>
                   </button>
                 </div>
               )}
