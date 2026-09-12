@@ -155,6 +155,12 @@ function HabitMatrix({ habits, toggleDay, calculateStreak, deleteHabit, addHabit
     setContextMenuHabit(null);
   };
 
+  const deleteHabitFromButton = (habit) => {
+    if (deleteHabit && window.confirm(`Delete "${habit.title}"?`)) {
+      deleteHabit(habit.id);
+    }
+  };
+
   const handleToggle = (habitId, dateStr) => {
     // Only allow toggling today's date
     if (dateStr === todayISO && toggleDay) {
@@ -329,7 +335,18 @@ function HabitMatrix({ habits, toggleDay, calculateStreak, deleteHabit, addHabit
                   >
                     {/* Habit Name */}
                     <td className="px-4 py-2 font-bold text-gray-900 dark:text-white border-r-2 border-gray-300 dark:border-zinc-700 sticky left-0 bg-white dark:bg-zinc-900 z-10">
-                      {habit.title}
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="truncate">{habit.title}</span>
+                        <button
+                          type="button"
+                          onClick={(event) => { event.stopPropagation(); deleteHabitFromButton(habit); }}
+                          className="shrink-0 rounded-md p-1.5 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/30 dark:hover:text-red-400"
+                          aria-label={`Delete ${habit.title}`}
+                          title="Delete habit"
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      </div>
                     </td>
                     
                     {/* Goal */}
@@ -410,12 +427,23 @@ function HabitMatrix({ habits, toggleDay, calculateStreak, deleteHabit, addHabit
 
           return (
             <article key={habit.id} className="design-card p-4">
-              <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <h3 className="truncate text-sm font-semibold text-gray-900 dark:text-white">{habit.title}</h3>
                   <p className="mt-1 text-xs text-gray-500 dark:text-zinc-400">{streak} day streak</p>
                 </div>
-                <span className="shrink-0 text-xs text-gray-500 dark:text-zinc-400">{habit.completedDates?.filter((date) => date.startsWith(`${year}-${String(month + 1).padStart(2, '0')}`)).length || 0} this month</span>
+                    <div className="flex shrink-0 items-center gap-2">
+                      <span className="text-xs text-gray-500 dark:text-zinc-400">{habit.completedDates?.filter((date) => date.startsWith(`${year}-${String(month + 1).padStart(2, '0')}`)).length || 0} this month</span>
+                      <button
+                        type="button"
+                        onClick={() => deleteHabitFromButton(habit)}
+                        className="rounded-md p-1.5 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/30 dark:hover:text-red-400"
+                        aria-label={`Delete ${habit.title}`}
+                        title="Delete habit"
+                      >
+                        <Trash2 size={15} />
+                      </button>
+                    </div>
               </div>
               <div className="mt-4 grid grid-cols-7 gap-1.5">
                 {mobileWeekDates.map(({ date, label, day }) => {
