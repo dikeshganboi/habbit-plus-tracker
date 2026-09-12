@@ -25,6 +25,7 @@ function HabitMatrix({ habits, toggleDay, calculateStreak, deleteHabit, addHabit
   // Context menu state
   const [contextMenu, setContextMenu] = useState(null);
   const [contextMenuHabit, setContextMenuHabit] = useState(null);
+  const [deleteCandidate, setDeleteCandidate] = useState(null);
 
   // Generate years dropdown (current year ± 5 years)
   const years = useMemo(() => {
@@ -146,19 +147,20 @@ function HabitMatrix({ habits, toggleDay, calculateStreak, deleteHabit, addHabit
   };
 
   const handleDeleteHabit = () => {
-    if (contextMenuHabit && deleteHabit) {
-      if (window.confirm(`Delete "${contextMenuHabit.title}"?`)) {
-        deleteHabit(contextMenuHabit.id);
-      }
-    }
+    if (contextMenuHabit) setDeleteCandidate(contextMenuHabit);
     setContextMenu(null);
     setContextMenuHabit(null);
   };
 
   const deleteHabitFromButton = (habit) => {
-    if (deleteHabit && window.confirm(`Delete "${habit.title}"?`)) {
-      deleteHabit(habit.id);
+    setDeleteCandidate(habit);
+  };
+
+  const confirmDeleteHabit = () => {
+    if (deleteCandidate && deleteHabit) {
+      deleteHabit(deleteCandidate.id);
     }
+    setDeleteCandidate(null);
   };
 
   const handleToggle = (habitId, dateStr) => {
@@ -709,6 +711,24 @@ function HabitMatrix({ habits, toggleDay, calculateStreak, deleteHabit, addHabit
           >
             Cancel
           </button>
+        </div>
+      )}
+
+      {deleteCandidate && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 p-4 backdrop-blur-[2px]" role="dialog" aria-modal="true" aria-labelledby="delete-habit-title">
+          <div className="w-full max-w-sm rounded-2xl border border-gray-200 bg-white p-5 shadow-2xl dark:border-zinc-700 dark:bg-zinc-900 sm:p-6">
+            <div className="flex items-start gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-50 text-red-600 dark:bg-red-950/40 dark:text-red-400"><Trash2 size={19} /></div>
+              <div>
+                <h2 id="delete-habit-title" className="text-base font-bold text-gray-900 dark:text-white">Delete this habit?</h2>
+                <p className="mt-1 text-sm leading-5 text-gray-500 dark:text-zinc-400">“{deleteCandidate.title}” and its completion history will be removed.</p>
+              </div>
+            </div>
+            <div className="mt-6 flex justify-end gap-2">
+              <button type="button" onClick={() => setDeleteCandidate(null)} className="soft-button px-3 py-2 text-sm font-medium">Keep habit</button>
+              <button type="button" onClick={confirmDeleteHabit} className="inline-flex items-center gap-2 rounded-[10px] border border-red-600 bg-red-600 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-red-700"><Trash2 size={15} /> Delete habit</button>
+            </div>
+          </div>
         </div>
       )}
     </div>
