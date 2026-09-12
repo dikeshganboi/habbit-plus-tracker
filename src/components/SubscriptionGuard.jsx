@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
+import { signOut } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { db } from '../firebase';
-import { Lock, Crown, CheckCircle2, X } from 'lucide-react';
+import { auth, db } from '../firebase';
+import { ArrowLeft, Lock, Crown, CheckCircle2, X } from 'lucide-react';
 
 function SubscriptionGuard({ userId, children }) {
   const [subscriptionStatus, setSubscriptionStatus] = useState(null);
@@ -176,6 +177,14 @@ function SubscriptionGuard({ userId, children }) {
     };
   };
 
+  const handleBackToLogin = async () => {
+    try {
+      await signOut(auth);
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-black flex items-center justify-center">
@@ -328,6 +337,14 @@ function SubscriptionGuard({ userId, children }) {
         <p className="text-center mt-6 text-sm text-gray-600 dark:text-zinc-400 font-semibold">
           Cancel anytime • Full refund if not satisfied
         </p>
+
+        <button
+          onClick={handleBackToLogin}
+          className="mx-auto mt-4 flex items-center gap-2 text-sm font-bold text-gray-600 dark:text-zinc-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back to login
+        </button>
       </div>
 
       {/* Payment Modal */}
